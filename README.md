@@ -1,6 +1,11 @@
 Lab_4 - Remote Terminal (PicoBlaze and MicroBlaze)
 =====
 
+Grades:
+* Prelab - Check, on time
+* PicoBlaze functionality - On time
+* MicroBlaze functionality - On time
+
 ### Introduction
 
 The purpose of this laboratory exercise was to create a font controller to be used with the VGA controller that we had already created in Lab 1. Basic functionality consisted of writing all A's to the screen.
