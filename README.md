@@ -1,4 +1,4 @@
-Lab_4 - Remote Terminal (PicoBlaze and MicroBlaze)
+Lab 4 - Remote Terminal (PicoBlaze/MicroBlaze)
 =====
 
 Grades:
