@@ -1,7 +1,7 @@
 Lab 4 - Remote Terminal (PicoBlaze/MicroBlaze)
 =====
 
-Grades:
+#### Grades:
 * Prelab - Check, on time
 * PicoBlaze functionality - On time
 * MicroBlaze functionality - On time
