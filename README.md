@@ -8,11 +8,11 @@ Lab 4 - Remote Terminal (PicoBlaze/MicroBlaze)
 
 ### Introduction
 
-The purpose of this laboratory exercise was to create a font controller to be used with the VGA controller that we had already created in Lab 1. Basic functionality consisted of writing all A's to the screen.
+The goal of the laboratory exercise was to interface different peripherals of an FPGA (both the switches and the LEDs) to processors that we created, using both our written MicroBlaze and PicoBlaze processors.  
 
 ### Implementation
 
-The implementation of this lab consisted of having to write code for five separate VHDL modules. Once again, I used my `vga_sync` module written for Lab 1 with instantiations for `h_sync` and `v_sync`. A block diagram/RTL schematic of my design can be seen in the image below:
+The implementation of this lab consisted of having to write code in OpenPicIDE for the PicoBlaze processor, and then output the code to . Once again, I used my `vga_sync` module written for Lab 1 with instantiations for `h_sync` and `v_sync`. A block diagram/RTL schematic of my design can be seen in the image below:
 
 ![alt text](http://i.imgur.com/Fq27U9o.png "RTL Schematic")
 
