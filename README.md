@@ -12,172 +12,23 @@ The goal of the laboratory exercise was to interface different peripherals of an
 
 ### Implementation
 
-The implementation of this lab consisted of having to write code in OpenPicIDE for the PicoBlaze processor, and then output the code to . Once again, I used my `vga_sync` module written for Lab 1 with instantiations for `h_sync` and `v_sync`. A block diagram/RTL schematic of my design can be seen in the image below:
+The implementation of this lab consisted of having to write code in OpenPicIDE for the PicoBlaze processor, and then output the code to a VHDL file for our ROM. After the ROM was created in VHDL, the UART modules were then written and instantiated in our top level file. After this, the code was then written to handle the `swt` and `led` commands in Tera Term (our chosen terminal program).
 
-![alt text](http://i.imgur.com/Fq27U9o.png "RTL Schematic")
+For the second part of the lab, this same functioanlity was to be implemented using MicroBlaze. The processor first had to be built using Xilinx Platform Studio. This design was then exported to SDK, where C code was written to accomplish the required functionality. The port map for my MicroBlaze processor can be seen below:
 
+![alt text](http://i.imgur.com/veArrWW.png "MicroBlaze Port Map")
 
 The modules that I wrote for this lab are listed below complete with examples and explanations:
 
  * `atlys_lab_font_controller` - This file is the top level VHDL file that includes the instantiations of the `vga_sync`, `character_gen`, and `input_to_pulse` modules. The instantiations for each of these components can be seen below:
 
 ```vhdl
-	Inst_vga_sync: entity work.vga_sync(Behavioral) PORT MAP(
-		clk => pixel_clk,
-		reset => reset,
-		h_sync => h_sync,
-		v_sync => v_sync,
-		v_completed => v_completed,
-		blank => blank,
-		row => row,
-		column => column
-	);
-
-	Inst_character_gen: entity work.character_gen(Behavioral) PORT MAP(
-		clk => pixel_clk,
-		blank => blank_reg ,
-		row => std_logic_vector(row),
-		column => std_logic_vector(column),
-		ascii_to_write => "00000011", -- this is the A ascii
-		write_en => WE,
-		r => red,
-		g => green,
-		b => blue 
-	);
-
 	Inst_input_to_pulse: entity work.input_to_pulse(Behavioral) PORT MAP(
 		clk => pixel_clk,
 		reset => reset,
 		button => start,
 		button_pulse => WE
 	);
-```
- * In addition, in order for the characters to properly display on the monitor, I needed to implement multiple delays in the top shell. These delays can be seen below:
-
-```vhdl
-		process(pixel_clk) is 
-		begin
-			if(rising_edge(pixel_clk)) then
-				delay1 <= blank;
-			end if;
-		end process;
-
-		process(pixel_clk) is
-		begin
-			if(rising_edge(pixel_clk)) then
-				blank_reg <= delay1;
-			end if;
-		end process;
-
-		process(pixel_clk) is 
-		begin
-			if(rising_edge(pixel_clk)) then
-				h_sync_delay1 <= h_sync;
-				h_sync_delay2 <= h_sync_delay1;
-			end if;
-		end process;
-
-		process(pixel_clk) is 
-		begin
-			if(rising_edge(pixel_clk)) then
-				v_sync_delay1 <= v_sync;
-				v_sync_delay2 <= v_sync_delay1;
-			end if;
-		end process;
-```
-
- * `character_gen` - This VHDL module actually generates the display of characters on the actual monitor. This also contained three instantiations for entities utilized to generate the signal. The instantiations can be seen below:
-
-```vhdl
-		Inst_char_screen_buffer: entity work.char_screen_buffer(Behavioral) PORT MAP(
-			clk => clk,
-			we => write_en,
-			address_a => count_reg ,
-			address_b => row_col_multiply(11 downto 0),
-			data_in => ascii_to_write,
-			data_out_a => open,
-			data_out_b => data_b_sig
-		);
-
-		Inst_font_rom: entity work.font_rom(arch) PORT MAP(
-			clk => clk ,
-			addr => addr_sig,
-			data =>  font_data_sig
-		);
-
-		Inst_mux: entity work.mux(Behavioral) PORT MAP(
-			data => font_data_sig,
-			sel => col_reg,
-			output => mux_out
-		);
-```
- * In addition, the below picture depicts the block diagram for `character_gen`.
-
-![alt text](http://i.imgur.com/HRA0zA8.png "Character Gen")
-
- * Also, my `character_gen` module contained a process that actually displayed the characters/colors on the monitor, which took the place of a separate `pixel_gen` module. This process can be seen below:
-
-```vhdl
-		process(mux_out, blank) is
-		begin
-			r <= (others => '0');
-			g <= (others => '0');
-			b <= (others => '0');
-			if(blank = '0') then
-				if(mux_out = '1') then
-					r <= (others => '1');
-				end if;
-			end if;	
-		end process;
-```
-
- * `mux` - This VHDL module is the multiplexer that is utilized with my `character_gen` module to generate the characters on the monitor dsiplay. I decided to create this mux in a separate module and then instantiate it in the `character_gen` module. The mux code can be seen below:
-
-```vhdl
-	process(sel, data) is
-	begin
-		if( sel = "000") then
-			output <= data(7);
-		elsif(sel = "001") then
-			output <= data(6);
-		elsif(sel = "010") then
-			output <= data(5);
-		elsif(sel <="011") then
-			output <= data(4);
-		elsif(sel <="100") then
-			output <= data(3);
-		elsif(sel <="101") then
-			output <= data(2);
-		elsif(sel <= "110") then
-			output <= data(1);
-		else
-			output <= data(0);
-		end if;
-	end process;
-```
- * `mux` - This VHDL module is the multiplexer that is utilized with my `character_gen` module to generate the characters on the monitor dsiplay. I decided to create this mux in a separate module and then instantiate it in the `character_gen` module. The mux code can be seen below:
-
-```vhdl
-	process(sel, data) is
-	begin
-		if( sel = "000") then
-			output <= data(7);
-		elsif(sel = "001") then
-			output <= data(6);
-		elsif(sel = "010") then
-			output <= data(5);
-		elsif(sel <="011") then
-			output <= data(4);
-		elsif(sel <="100") then
-			output <= data(3);
-		elsif(sel <="101") then
-			output <= data(2);
-		elsif(sel <= "110") then
-			output <= data(1);
-		else
-			output <= data(0);
-		end if;
-	end process;
 ```
 
 ### Test/Debug
