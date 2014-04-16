@@ -18,26 +18,14 @@ For the second part of the lab, this same functioanlity was to be implemented us
 
 ![alt text](http://i.imgur.com/veArrWW.png "MicroBlaze Port Map")
 
-The modules that I wrote for this lab are listed below complete with examples and explanations:
-
- * `atlys_lab_font_controller` - This file is the top level VHDL file that includes the instantiations of the `vga_sync`, `character_gen`, and `input_to_pulse` modules. The instantiations for each of these components can be seen below:
-
-```vhdl
-	Inst_input_to_pulse: entity work.input_to_pulse(Behavioral) PORT MAP(
-		clk => pixel_clk,
-		reset => reset,
-		button => start,
-		button_pulse => WE
-	);
-```
 
 ### Test/Debug
 
-While working on this lab, I experienced issues with many of my VHDL modules. The problems I experienced can be seen below.
- * The first of my issues was with the hierarchichal design of the lab. I had initial issues determining which module were to be instantiated where, specifially with the `font_rom` and `char_screen_buffer` modules. Initially I had placed both of them in the top shell - `atlys_lab_font_controller` and I was experiencing many issues with my code. Ultimately though, I figured out to instantiate them both in the `character_gen` module (like the course website says), which solved this particular issue.
- * Another issue I experienced was with trying to generate the characters to be drawn to the screen in a separate `pixel_gen` module. In theory, this should have worked, but I was experiencing difficulties interfacing the `pixel_gen` module with the font ROM library, since I was no longer just drawing things on the screen. I eventually just scrapped my `pixel_gen` module altogether and created the apropriate code in the `character_gen` module using already existing inputs.
- * The final issue I experienced in this lab occured after I got the characters to display on the screen. The issue was that the very first and very last columns of pixels were being cut off. I had already implemented appropriate delays for blank in the top shell, but I couldn't figure out why this was happenening. After consulting with Captain Branchflower, he noted that my issue was most likely with the delay for `h_sync` and `v_sync`. After writing delays for these signals, the pixels were no longer being cut off, and I achieved basic functionality.
+While working on this lab, I experienced issues with both of my processors. The problems I experienced can be seen below:
 
+ * The first issue I experienced in this lab occured after I had written my PicoBlaze ROM code. I had experienced numerous issues with connecting my FPGA to the terminal. The tricky part was having to re-instanitate my ROM code in VHDL every time I made a change tot the code. I ultimately fixed this issue.
+ * In the MicroBlaze portion of the lab, I also experienced issues with the initial setup of my processor design in Platform Studio. The first major issue I had was in the creation of the peripheral for the LEDs. I initally created the peripheral within the root Xilinx folder in my C: drive. After adding the peripheral to my design, this proved to not work. I was getting numerous errors during error checking. I ended up fixing this problem by removing the peripheral from my design and starting over from scratch. I re-created the peripheral in a separate folder. When i went in and added this to my design, the program ended up working without errors.
+ * Another issue I had with the lab was in my creation of the constraints. After adding the peripherals to my final design, I was still getting errors with my constraints. I then realized that i never actually went in and connected the peripheral VHDL ports to external ports on the FPGA. After I did this and appropriately named my constraints for both the LEDs and the switches, my designed hardware worked well and without errors.
 
 ### Conclusion
 
